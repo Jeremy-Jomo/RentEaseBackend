@@ -1,3 +1,8 @@
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+db = SQLAlchemy()
+
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -7,6 +12,10 @@ class User(db.Model):
     password = db.Column(db.String)
     role = db.Column(db.String, doc="admin, landlord, tenant")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    #relationships
+    properties = db.relationship('Property', back_populates='landlord')
+    bookings = db.relationship('Booking', back_populates='tenant')
 
 class Property(db.Model):
     __tablename__ = "properties"
@@ -21,6 +30,10 @@ class Property(db.Model):
     available = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    #relationships
+    landlord = db.relationship('User', back_populates='properties')
+    bookings = db.relationship('Booking', back_popupates='prop')
+
 class Booking(db.Model):
     __tablename__ = "bookings"
 
@@ -31,3 +44,7 @@ class Booking(db.Model):
     end_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String, nullable=False, doc="pending, approved, cancelled")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    #relationships
+    tenant = db.relationship('User', back_populates='bookings')
+    prop = db.relationship('Property', back_populates='bookings')
