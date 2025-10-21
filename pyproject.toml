@@ -9,13 +9,11 @@ python = "^3.10"
 flask = "^3.0"
 flask-sqlalchemy = "^3.0"
 flask-cors = "^2.0"
-gunicorn = "^21.0
-# Add all your other dependencies here
+gunicorn = "^21.0"
 
 [tool.poetry.dev-dependencies]
 black = "^23.0"
 isort = "^5.12"
-# Add other dev dependencies
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -39,4 +37,3 @@ exclude = '''
 profile = "black"
 line_length = 100
 skip = ["venv", "migrations", ".git"]
-
