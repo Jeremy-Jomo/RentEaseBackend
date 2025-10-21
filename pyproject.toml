@@ -8,6 +8,7 @@ authors = ["Jeremy Jomo <your.email@example.com>"]
 python = "^3.10"
 django = "^4.2"
 djangorestframework = "^3.14"
+gunicorn = "^21.0"
 # Add all your other dependencies here
 
 [tool.poetry.dev-dependencies]
