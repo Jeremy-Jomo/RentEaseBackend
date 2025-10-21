@@ -1,5 +1,5 @@
-from app import create_app
-from app.server.models import db
+from server import create_app
+from server.models import db
 
 app = create_app()
 
