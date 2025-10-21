@@ -1,5 +1,4 @@
-from server import create_app
-from server.models import db
+from server import create_app, db
 
 app = create_app()
 
@@ -8,5 +7,4 @@ def make_shell_context():
     return {'db': db}
 
 if __name__ == '__main__':
-    # Only runs locally, not in production
-    app.run(debug=False, port=5000)  # Change debug to False
+    app.run(debug=False, port=5000)
