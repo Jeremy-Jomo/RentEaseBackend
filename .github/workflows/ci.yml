@@ -26,7 +26,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pipenv install --dev
+        pipenv install --dev --ignore-pipfile
 
     - name: Verify pytest is installed
       run: |
@@ -34,7 +34,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pipenv run pytest tests/ -v
+        pipenv run pytest ./tests -v
 
 
   deploy:
