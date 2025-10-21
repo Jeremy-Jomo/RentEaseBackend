@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
@@ -11,11 +11,13 @@ def create_app():
     # Configuration
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///rentease.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
     
     # Initialize extensions
     db.init_app(app)
     CORS(app)
+    
+    # Basic route
     @app.route('/')
     def home():
         return jsonify({
@@ -24,7 +26,14 @@ def create_app():
             'database': 'connected'
         })
     
-    # Register blueprints/routes here
+    @app.route('/health')
+    def health():
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected'
+        })
+    
+    # Register blueprints/routes here when you create them
     # Example:
     # from server.routes import main_bp
     # app.register_blueprint(main_bp)
