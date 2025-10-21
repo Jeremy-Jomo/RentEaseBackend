@@ -16,6 +16,13 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     CORS(app)
+    @app.route('/')
+    def home():
+        return jsonify({
+            'message': 'RentEase Backend API is running! 🚀',
+            'status': 'success',
+            'database': 'connected'
+        })
     
     # Register blueprints/routes here
     # Example:
