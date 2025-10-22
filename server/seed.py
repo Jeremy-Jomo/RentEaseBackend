@@ -1,17 +1,12 @@
 # seed.py
-from app import create_app, db
-from app.models import User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review, Favorite, Notification
-from datetime import datetime, timedelta
-import random
+from app import app, db
+from models import User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
+from datetime import datetime
 
 def seed_database():
     """Seed the database with initial data"""
-    app = create_app()
-    
     with app.app_context():
         
-        db.session.query(Notification).delete()
-        db.session.query(Favorite).delete()
         db.session.query(Review).delete()
         db.session.query(Payment).delete()
         db.session.query(Booking).delete()
@@ -20,7 +15,7 @@ def seed_database():
         db.session.query(Property).delete()
         db.session.query(User).delete()
         
-        
+        # Seed Users
         users = [
             User(
                 name='Admin User',
@@ -37,21 +32,21 @@ def seed_database():
                 created_at=datetime.now()
             ),
             User(
-                name='Sharon Irungu ',
+                name='Sharon Irungu',
                 email='sharon.irungu@gmail.com',
                 password='hashed_password123',
                 role='landlord',
                 created_at=datetime.now()
             ),
             User(
-                name='Esther Mumira ',
+                name='Esther Mumira',
                 email='esther.mumira@gmail.com',
                 password='hashed_password123',
                 role='tenant',
                 created_at=datetime.now()
             ),
             User(
-                name='Mourice Karia ',
+                name='Mourice Karia',
                 email='morriskaria542@gmail.com',
                 password='hashed_password123',
                 role='tenant',
@@ -68,9 +63,9 @@ def seed_database():
         
         for user in users:
             db.session.add(user)
-        db.session.flush()  # This assigns IDs to the user objects
+        db.session.flush()
         
-       
+        # Seed Properties
         locations = [
             'Westlands, Nairobi', 'Kilimani, Nairobi', 'Karen, Nairobi', 
             'Lavington, Nairobi', 'Kileleshwa, Nairobi', 'Runda, Nairobi',
@@ -84,7 +79,7 @@ def seed_database():
                 rent_price=45000.00,
                 location=locations[0],
                 image_url='https://example.com/images/property1.jpg',
-                landlord_id=users[1].id,  # John Kamau
+                landlord_id=users[1].id,  
                 available=True,
                 created_at=datetime.now()
             ),
@@ -94,7 +89,7 @@ def seed_database():
                 rent_price=85000.00,
                 location=locations[2],
                 image_url='https://example.com/images/property2.jpg',
-                landlord_id=users[1].id,  # John Kamau
+                landlord_id=users[1].id,  
                 available=True,
                 created_at=datetime.now()
             ),
@@ -104,7 +99,7 @@ def seed_database():
                 rent_price=25000.00,
                 location=locations[1],
                 image_url='https://example.com/images/property3.jpg',
-                landlord_id=users[2].id,  # Mary Wanjiku
+                landlord_id=users[2].id,  
                 available=True,
                 created_at=datetime.now()
             ),
@@ -114,7 +109,7 @@ def seed_database():
                 rent_price=65000.00,
                 location=locations[3],
                 image_url='https://example.com/images/property4.jpg',
-                landlord_id=users[2].id,  # Mary Wanjiku
+                landlord_id=users[2].id, 
                 available=True,
                 created_at=datetime.now()
             ),
@@ -124,7 +119,7 @@ def seed_database():
                 rent_price=35000.00,
                 location=locations[4],
                 image_url='https://example.com/images/property5.jpg',
-                landlord_id=users[1].id,  # John Kamau
+                landlord_id=users[1].id,  
                 available=False,
                 created_at=datetime.now()
             )
@@ -261,7 +256,7 @@ def seed_database():
         for image in property_images:
             db.session.add(image)
         
-       
+        # Seed Property Amenities
         amenities = [
             PropertyAmenity(
                 property_id=properties[0].id,
@@ -327,7 +322,7 @@ def seed_database():
                 created_at=datetime.now()
             ),
             Booking(
-                tenant_id=users[4].id,  
+                tenant_id=users[4].id, 
                 property_id=properties[1].id,
                 start_date=datetime(2024, 2, 1),
                 end_date=datetime(2025, 1, 31),
@@ -335,7 +330,7 @@ def seed_database():
                 created_at=datetime.now()
             ),
             Booking(
-                tenant_id=users[5].id,  
+                tenant_id=users[5].id, 
                 property_id=properties[2].id,
                 start_date=datetime(2024, 3, 1),
                 end_date=datetime(2024, 8, 31),
@@ -343,7 +338,7 @@ def seed_database():
                 created_at=datetime.now()
             ),
             Booking(
-                tenant_id=users[3].id,  
+                tenant_id=users[3].id, 
                 property_id=properties[3].id,
                 start_date=datetime(2024, 1, 20),
                 end_date=datetime(2024, 6, 20),
@@ -354,14 +349,14 @@ def seed_database():
         
         for booking in bookings:
             db.session.add(booking)
-        db.session.flush()  
+        db.session.flush()
         
         # Seed Payments
         payments = [
             Payment(
                 booking_id=bookings[0].id,
-                tenant_id=users[3].id, 
-                landlord_id=users[1].id, 
+                tenant_id=users[3].id,  
+                landlord_id=users[1].id,  
                 amount=45000.00,
                 payment_method='bank_transfer',
                 status='completed',
@@ -372,7 +367,7 @@ def seed_database():
             Payment(
                 booking_id=bookings[1].id,
                 tenant_id=users[4].id,  
-                landlord_id=users[2].id,  # Mary Wanjiku
+                landlord_id=users[2].id,  
                 amount=85000.00,
                 payment_method='digital_wallet',
                 status='completed',
@@ -395,15 +390,15 @@ def seed_database():
         
         for payment in payments:
             db.session.add(payment)
-        db.session.flush()  
+        db.session.flush()
         
-        
+        # Seed Reviews
         reviews = [
             Review(
                 booking_id=bookings[0].id,
                 tenant_id=users[3].id,  
                 property_id=properties[0].id,
-                landlord_id=users[1].id,  
+                landlord_id=users[1].id, 
                 rating=5,
                 review_text='Great apartment! The location in Westlands is perfect and the landlord is very responsive.',
                 landlord_reply='Thank you for your kind words!',
@@ -413,9 +408,9 @@ def seed_database():
             ),
             Review(
                 booking_id=bookings[1].id,
-                tenant_id=users[4].id,  
+                tenant_id=users[4].id, 
                 property_id=properties[1].id,
-                landlord_id=users[2].id,
+                landlord_id=users[2].id,  
                 rating=4,
                 review_text='Beautiful house in Karen. Love the garden space!',
                 landlord_reply="We're glad you're enjoying the property!",
@@ -427,82 +422,6 @@ def seed_database():
         
         for review in reviews:
             db.session.add(review)
-        
-        # Seed Favorites
-        favorites = [
-            Favorite(
-                user_id=users[3].id,  
-                property_id=properties[1].id,  
-                created_at=datetime.now()
-            ),
-            Favorite(
-                user_id=users[4].id,  
-                property_id=properties[2].id, 
-                created_at=datetime.now()
-            ),
-            Favorite(
-                user_id=users[5].id,  
-                property_id=properties[0].id, 
-                created_at=datetime.now()
-            ),
-            Favorite(
-                user_id=users[3].id,  
-                property_id=properties[2].id, 
-                created_at=datetime.now()
-            )
-        ]
-        
-        for favorite in favorites:
-            db.session.add(favorite)
-        
-        # Seed Notifications
-        notifications = [
-            Notification(
-                user_id=users[1].id,  
-                type='booking_request',
-                title='New Booking Request',
-                message='David Ochieng has requested to book your Westlands apartment',
-                email_sent=False,
-                email_sent_at=None,
-                sendgrid_message_id=None,
-                is_read=False,
-                related_entity_type='booking',
-                related_entity_id=bookings[0].id,
-                action_url='/bookings/1',
-                created_at=datetime.now()
-            ),
-            Notification(
-                user_id=users[3].id,  
-                type='booking_confirmed',
-                title='Booking Confirmed',
-                message='Your booking for Karen House has been confirmed',
-                email_sent=True,
-                email_sent_at=datetime.now(),
-                sendgrid_message_id='SG123456',
-                is_read=False,
-                related_entity_type='booking',
-                related_entity_id=bookings[1].id,
-                action_url='/bookings/2',
-                created_at=datetime.now()
-            ),
-            Notification(
-                user_id=users[2].id,  #
-                type='payment_received',
-                title='Payment Received',
-                message='Payment of KES 85,000 received from Grace Akinyi',
-                email_sent=False,
-                email_sent_at=None,
-                sendgrid_message_id=None,
-                is_read=False,
-                related_entity_type='payment',
-                related_entity_id=payments[1].id,
-                action_url='/payments/2',
-                created_at=datetime.now()
-            )
-        ]
-        
-        for notification in notifications:
-            db.session.add(notification)
         
         # Commit all changes
         db.session.commit()
