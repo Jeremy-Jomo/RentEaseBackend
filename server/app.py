@@ -1,18 +1,17 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from flask_migrate import Migrate
 
-from config import Config
-from models import db, User, Property, Booking
+from datetime import datetime
+import os
 import cloudinary
 import cloudinary.uploader
 import sendgrid
 from sendgrid.helpers.mail import Mail, Email, To, Content
-from datetime import datetime
-import os
 
-from flask import Flask, jsonify, request
-from flask_migrate import Migrate
-from models import db,User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
+from config import Config
+from models import db, User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -239,12 +238,6 @@ def get_landlord_bookings():
     )
     return jsonify([b.to_dict() for b in bookings]), 200
 
-
-@app.route('/admin/bookings', methods=['GET'])
-def get_all_bookings():
-
-    bookings = Booking.query.all()
-    return jsonify([b.to_dict() for b in bookings]), 200
 
 
 @app.route('/bookings/<int:id>/payment', methods=['PUT'])
