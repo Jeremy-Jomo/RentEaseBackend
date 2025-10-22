@@ -382,8 +382,8 @@ def seed_database():
             ),
             Payment(
                 booking_id=bookings[2].id,
-                tenant_id=users[5].id,  # James Mwangi
-                landlord_id=users[1].id,  # John Kamau
+                tenant_id=users[5].id,  
+                landlord_id=users[1].id,  
                 amount=25000.00,
                 payment_method='credit_card',
                 status='pending',
@@ -395,15 +395,15 @@ def seed_database():
         
         for payment in payments:
             db.session.add(payment)
-        db.session.flush()  # This assigns IDs to the payment objects
+        db.session.flush()  
         
-        # Seed Reviews
+        
         reviews = [
             Review(
                 booking_id=bookings[0].id,
-                tenant_id=users[3].id,  # David Ochieng
+                tenant_id=users[3].id,  
                 property_id=properties[0].id,
-                landlord_id=users[1].id,  # John Kamau
+                landlord_id=users[1].id,  
                 rating=5,
                 review_text='Great apartment! The location in Westlands is perfect and the landlord is very responsive.',
                 landlord_reply='Thank you for your kind words!',
@@ -413,9 +413,9 @@ def seed_database():
             ),
             Review(
                 booking_id=bookings[1].id,
-                tenant_id=users[4].id,  # Grace Akinyi
+                tenant_id=users[4].id,  
                 property_id=properties[1].id,
-                landlord_id=users[2].id,  # Mary Wanjiku
+                landlord_id=users[2].id,
                 rating=4,
                 review_text='Beautiful house in Karen. Love the garden space!',
                 landlord_reply="We're glad you're enjoying the property!",
@@ -431,23 +431,23 @@ def seed_database():
         # Seed Favorites
         favorites = [
             Favorite(
-                user_id=users[3].id,  # David Ochieng
-                property_id=properties[1].id,  # Karen House
+                user_id=users[3].id,  
+                property_id=properties[1].id,  
                 created_at=datetime.now()
             ),
             Favorite(
-                user_id=users[4].id,  # Grace Akinyi
-                property_id=properties[2].id,  # Kilimani Studio
+                user_id=users[4].id,  
+                property_id=properties[2].id, 
                 created_at=datetime.now()
             ),
             Favorite(
-                user_id=users[5].id,  # James Mwangi
-                property_id=properties[0].id,  # Westlands Apartment
+                user_id=users[5].id,  
+                property_id=properties[0].id, 
                 created_at=datetime.now()
             ),
             Favorite(
-                user_id=users[3].id,  # David Ochieng
-                property_id=properties[2].id,  # Kilimani Studio
+                user_id=users[3].id,  
+                property_id=properties[2].id, 
                 created_at=datetime.now()
             )
         ]
