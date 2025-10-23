@@ -26,7 +26,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pipenv install --dev
+        pipenv install --dev --ignore-pipfile
 
     - name: Verify pytest is installed
       run: |
@@ -34,4 +34,19 @@ jobs:
 
     - name: Run tests
       run: |
-        pipenv run pytest tests/ -v
+        pipenv run pytest ./tests -v
+
+
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: test  
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development'
+
+
+    steps:
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST "https://api.render.com/v1/services/rnd_A9m7IYgTKpQACrPI9iRWiUdz1z5H/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Accept: application/json"
