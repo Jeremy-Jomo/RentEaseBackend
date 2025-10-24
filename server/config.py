@@ -8,8 +8,9 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
     'DATABASE_URL',
-    'postgresql://morriskaria:kwanyama@localhost:5432/rentease'
+    'postgresql://postgres:password123@localhost:5432/rentease'
 )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # JWT
