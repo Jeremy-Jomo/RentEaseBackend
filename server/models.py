@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy.orm import validates
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 db = SQLAlchemy()
 
@@ -16,13 +18,29 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+    _password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, doc="admin, landlord, tenant")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     properties = db.relationship('Property', back_populates='landlord', cascade="all, delete-orphan")
     bookings = db.relationship('Booking', back_populates='tenant', cascade="all, delete-orphan")
     favorite_properties = db.relationship('Property', secondary=favorites, back_populates='favorited_by')
+
+
+
+    @property
+    def password(self):
+        raise AttributeError("Password is write-only.")
+
+    @password.setter
+    def password(self, plain_password):
+        """Automatically hash passwords when setting them"""
+        self._password_hash = generate_password_hash(plain_password)
+
+    def check_password(self, plain_password):
+        """Verify a plaintext password against the stored hash"""
+        return check_password_hash(self._password_hash, plain_password)
+
 
     @validates('email')
     def validate_email(self, key, address):
