@@ -41,7 +41,7 @@ def seed_database():
                 description='Beautiful 2-bedroom apartment with city views',
                 rent_price=45000.00,
                 location=locations[0],
-                image_url='https://images.unsplash.com/photo-1564013799919-ab600027ffc6',
+                image_url='https://example.com/images/property1.jpg',
                 landlord_id=users[1].id,
                 available=True,
                 created_at=datetime.now()
@@ -51,7 +51,7 @@ def seed_database():
                 description='3-bedroom family house with garden',
                 rent_price=85000.00,
                 location=locations[2],
-                image_url='https://images.unsplash.com/photo-1518780664697-55e3ad937233',
+                image_url='https://example.com/images/property2.jpg',
                 landlord_id=users[1].id,
                 available=True,
                 created_at=datetime.now()
@@ -61,37 +61,38 @@ def seed_database():
                 description='Cozy studio apartment near amenities',
                 rent_price=25000.00,
                 location=locations[1],
-                image_url='https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
-                landlord_id=users[1].id,
+                image_url='https://example.com/images/property3.jpg',
+                landlord_id=users[2].id,
                 available=True,
                 created_at=datetime.now()
             ),
             Property(
                 title='Lavington Bungalow',
-                description='Classic 2-bedroom bungalow with garden',
+                description='Classic 2-bedroom bungalow',
                 rent_price=65000.00,
                 location=locations[3],
-                image_url='https://images.unsplash.com/photo-1570129477492-45c003edd2be',
-                landlord_id=users[1].id,
+                image_url='https://example.com/images/property4.jpg',
+                landlord_id=users[2].id,
                 available=True,
                 created_at=datetime.now()
             ),
             Property(
                 title='Kileleshwa Apartment',
-                description='Modern 1-bedroom with balcony and parking',
+                description='Modern 1-bedroom with balcony',
                 rent_price=35000.00,
                 location=locations[4],
-                image_url='https://images.unsplash.com/photo-1484154218962-a197022b5858',
+                image_url='https://example.com/images/property5.jpg',
                 landlord_id=users[1].id,
                 available=False,
                 created_at=datetime.now()
             )
         ]
 
-        db.session.add_all(properties)
-        db.session.flush()  # Get IDs for relationships
+        for property in properties:
+            db.session.add(property)
+        db.session.flush()
 
-        # --- Seed Property Images ---
+        # Seed Property Images
         property_images = [
             PropertyImage(
                 property_id=properties[0].id,

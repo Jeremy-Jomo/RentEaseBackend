@@ -16,6 +16,7 @@ from server.models import db, User, Property, PropertyImage, PropertyAmenity, Bo
 
 app = Flask(__name__)
 app.config.from_object(Config)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173", "https://rent-ease-silk.vercel.app/" , "https://vercel.com/jeremykirubi-5207s-projects/rent-ease/9mB7K6o76qUNgpsEVwVHxFNKEx5z"])
