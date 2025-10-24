@@ -9,17 +9,18 @@ import cloudinary
 import cloudinary.uploader
 import sendgrid
 from sendgrid.helpers.mail import Mail, Email, To, Content
-from swagger_spec import get_swagger_spec
+from server.swagger_spec import get_swagger_spec
 
-from config import Config
-from models import db, User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
+
+from server.config import Config
+from server.models import db, User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 
-SWAGGER_URL = '/docs'  
-API_URL = '/swagger.json'  
+SWAGGER_URL = '/docs'
+API_URL = '/swagger.json'
 
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
@@ -29,7 +30,7 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
-CORS(app, 
+CORS(app,
      origins=["*"],
      supports_credentials=True,
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
@@ -41,7 +42,7 @@ jwt = JWTManager()
 db.init_app(app)
 jwt.init_app(app)
 
-from models import User, Property, Booking
+from server.models import User, Property, Booking
 
 
 @app.route('/swagger.json')
