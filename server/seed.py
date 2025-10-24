@@ -1,6 +1,6 @@
 # seed.py
-from app import app, db
-from models import User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
+from server.app import app, db
+from server.models import User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
 from datetime import datetime
 
 def seed_database():
