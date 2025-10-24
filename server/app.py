@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from flask_cors import CORS
 from flask_migrate import Migrate
 
 from datetime import datetime
@@ -15,6 +16,7 @@ from models import db, User, Property, PropertyImage, PropertyAmenity, Booking, 
 
 app = Flask(__name__)
 app.config.from_object(Config)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 

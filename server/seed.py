@@ -73,57 +73,57 @@ def seed_database():
         ]
         
         properties = [
-            Property(
-                title='Modern Apartment in Westlands',
-                description='Beautiful 2-bedroom apartment with city views',
-                rent_price=45000.00,
-                location=locations[0],
-                image_url='https://example.com/images/property1.jpg',
-                landlord_id=users[1].id,  
-                available=True,
-                created_at=datetime.now()
-            ),
-            Property(
-                title='Spacious Karen House',
-                description='3-bedroom family house with garden',
-                rent_price=85000.00,
-                location=locations[2],
-                image_url='https://example.com/images/property2.jpg',
-                landlord_id=users[1].id,  
-                available=True,
-                created_at=datetime.now()
-            ),
-            Property(
-                title='Kilimani Studio',
-                description='Cozy studio apartment near amenities',
-                rent_price=25000.00,
-                location=locations[1],
-                image_url='https://example.com/images/property3.jpg',
-                landlord_id=users[2].id,  
-                available=True,
-                created_at=datetime.now()
-            ),
-            Property(
-                title='Lavington Bungalow',
-                description='Classic 2-bedroom bungalow',
-                rent_price=65000.00,
-                location=locations[3],
-                image_url='https://example.com/images/property4.jpg',
-                landlord_id=users[2].id, 
-                available=True,
-                created_at=datetime.now()
-            ),
-            Property(
-                title='Kileleshwa Apartment',
-                description='Modern 1-bedroom with balcony',
-                rent_price=35000.00,
-                location=locations[4],
-                image_url='https://example.com/images/property5.jpg',
-                landlord_id=users[1].id,  
-                available=False,
-                created_at=datetime.now()
-            )
-        ]
+    Property(
+        title='Modern Apartment in Westlands',
+        description='Beautiful 2-bedroom apartment with city views',
+        rent_price=45000.00,
+        location=locations[0],
+        image_url='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+        landlord_id=users[1].id,  
+        available=True,
+        created_at=datetime.now()
+    ),
+    Property(
+        title='Spacious Karen House',
+        description='3-bedroom family house with garden',
+        rent_price=85000.00,
+        location=locations[2],
+        image_url='https://images.unsplash.com/photo-1600585154340-86b2a8cc4b2d?auto=format&fit=crop&w=800&q=80',
+        landlord_id=users[1].id,  
+        available=True,
+        created_at=datetime.now()
+    ),
+    Property(
+        title='Kilimani Studio',
+        description='Cozy studio apartment near amenities',
+        rent_price=25000.00,
+        location=locations[1],
+        image_url='https://images.unsplash.com/photo-1598928506310-0a2484c0d5d2?auto=format&fit=crop&w=800&q=80',
+        landlord_id=users[2].id,  
+        available=True,
+        created_at=datetime.now()
+    ),
+    Property(
+        title='Lavington Bungalow',
+        description='Classic 2-bedroom bungalow',
+        rent_price=65000.00,
+        location=locations[3],
+        image_url='https://images.unsplash.com/photo-1600585154222-f1c34c7f29d1?auto=format&fit=crop&w=800&q=80',
+        landlord_id=users[2].id, 
+        available=True,
+        created_at=datetime.now()
+    ),
+    Property(
+        title='Kileleshwa Apartment',
+        description='Modern 1-bedroom with balcony',
+        rent_price=35000.00,
+        location=locations[4],
+        image_url='https://images.unsplash.com/photo-1600585154220-29f5a5d45f9b?auto=format&fit=crop&w=800&q=80',
+        landlord_id=users[1].id,  
+        available=False,
+        created_at=datetime.now()
+    )
+]
         
         for property in properties:
             db.session.add(property)
