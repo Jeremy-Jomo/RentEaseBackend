@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-# Initialize Flask app
+# Directly create Flask app
 app = Flask(__name__)
 
 # Configuration
@@ -17,11 +17,11 @@ db = SQLAlchemy(app)
 def hello():
     return "Hello Render!"
 
-# Optional: shell context if you want Flask shell
+# Optional shell context
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db}
 
-# Run the app (used only locally, Render will use Gunicorn)
+# Run app locally (Render will use Gunicorn)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
