@@ -10,12 +10,13 @@ import cloudinary.uploader
 import sendgrid
 from sendgrid.helpers.mail import Mail, Email, To, Content
 
-from config import Config
-from models import db, User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
+from server.config import Config
+from server.models import db, User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173", "https://rent-ease-silk.vercel.app/" , "https://vercel.com/jeremykirubi-5207s-projects/rent-ease/9mB7K6o76qUNgpsEVwVHxFNKEx5z"])
@@ -26,9 +27,7 @@ jwt = JWTManager()
 
 db.init_app(app)
 jwt.init_app(app)
-
-
-from models import User, Property, Booking
+migrate = Migrate(app, db)
 
 
 @app.route('/api/health', methods=['GET'])
@@ -94,8 +93,6 @@ def send_booking_email(recipient_email, recipient_name, booking_type, booking_da
         print(f"Email sending failed: {str(e)}")
         return False
 
-
-migrate = Migrate(app, db)
 
 @app.route('/')
 def home():
