@@ -7,7 +7,8 @@ name = "pypi"
 flask = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
-
+flask-swagger-ui = "*"
+flask-cors = "*"
 
 [dev-packages]
 pytest = "*"
