@@ -85,5 +85,6 @@ Services: Cloudinary, SendGrid
 
 Auth: JWT tokens
 
+CD test: commit by [your name] on 24-Oct-2025
 
 
