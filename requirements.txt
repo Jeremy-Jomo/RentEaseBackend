@@ -6,6 +6,7 @@ click==8.1.8
 cloudinary==1.44.1
 cryptography==46.0.3
 Flask==3.0.3
+Flask-Cors==5.0.1
 Flask-JWT-Extended==4.6.0
 Flask-Migrate==4.1.0
 Flask-SQLAlchemy==3.1.1
@@ -28,3 +29,4 @@ urllib3==2.2.3
 gunicorn==21.2.0
 Werkzeug==3.0.6
 zipp==3.20.2
+
