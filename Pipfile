@@ -12,6 +12,7 @@ flask-jwt-extended = "*"
 cloudinary = "*"
 sendgrid = "*"
 psycopg2-binary = "*"
+flask-swagger-ui = "*"
 
 [dev-packages]
 pytest = "*"
