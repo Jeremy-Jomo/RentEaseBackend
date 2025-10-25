@@ -8,7 +8,7 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
     'DATABASE_URL',
-    'postgresql://postgres:password123@localhost:5432/rentease'
+    'postgresql://rentease_user:password123@localhost:5432/rentease_db'
 )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
