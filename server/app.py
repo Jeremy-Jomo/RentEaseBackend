@@ -123,10 +123,10 @@ def home():
     return jsonify({"message": "Welcome to the Flask API!"})
 
 # Property routes (your existing code remains unchanged)
-@app.route('/properties', methods=['GET'])
+@app.route('/properties')
 def get_properties():
-    propertys= Property.query.all()
-    return jsonify([prop.to_dict() for prop in propertys]), 200
+    properties = Property.query.all()
+    return jsonify([p.to_dict() for p in properties])
 
 @app.route('/properties/<int:property_id>', methods=['GET'])
 def get_property(property_id):
