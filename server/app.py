@@ -302,17 +302,26 @@ def login():
     else:
         return jsonify({"error": "Invalid email or password"}), 401
 
+
 @app.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
 
+    # Validation
+    if not all(k in data for k in ("name", "email", "password")):
+        return jsonify({"error": "Missing required fields"}), 400
+
     if User.query.filter_by(email=data['email']).first():
         return jsonify({"error": "Email already registered"}), 400
+
+    role = data.get('role', 'tenant')
+    if role not in ['admin', 'landlord', 'tenant']:
+        return jsonify({"error": "Invalid role"}), 400
 
     new_user = User(
         name=data['name'],
         email=data['email'],
-        role=data['role']
+        role=role
     )
     new_user.password = data['password']
 
