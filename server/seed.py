@@ -1,197 +1,267 @@
-import os
-import sys
-from datetime import datetime, timedelta
-import random
-from faker import Faker
-
-# Add the parent directory to the path to import your models
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from app import create_app, db
-from app.models.user import User
-from app.models.property import Property
-from app.models.booking import Booking
-
-fake = Faker()
+# seed.py
+from server.app import app, db
+from server.models import User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
+from datetime import datetime
 
 def seed_database():
-    """Seed the database with sample data"""
-    app = create_app()
-    
+    """Seed the database with initial data"""
     with app.app_context():
-        print("🗑️  Clearing existing data...")
-        # Clear existing data (in correct order due to foreign key constraints)
-        Booking.query.delete()
-        Property.query.delete()
-        User.query.delete()
-        db.session.commit()
-        
-        print("👥 Creating users...")
-        # Create admin user
-        admin = User(
-            name="Admin User",
-            email="admin@rentease.com",
-            password="$2b$12$Qq9l7C7rC7C7C7C7C7C7C.C7C7C7C7C7C7C7C7C7C7C7C7C7C7C",  # "password"
-            role="admin",
-            created_at=datetime.utcnow()
-        )
-        db.session.add(admin)
-        
-        # Create landlords
-        landlords = []
-        for i in range(3):
-            landlord = User(
-                name=fake.name(),
-                email=f"landlord{i+1}@example.com",
-                password="$2b$12$Qq9l7C7rC7C7C7C7C7C7C.C7C7C7C7C7C7C7C7C7C7C7C7C7C7C",  # "password"
-                role="landlord",
-                created_at=fake.date_time_this_year()
-            )
-            landlords.append(landlord)
-            db.session.add(landlord)
-        
-        # Create tenants
-        tenants = []
-        for i in range(10):
-            tenant = User(
-                name=fake.name(),
-                email=f"tenant{i+1}@example.com",
-                password="$2b$12$Qq9l7C7rC7C7C7C7C7C.C7C7C7C7C7C7C7C7C7C7C7C7C7C7C",  # "password"
-                role="tenant",
-                created_at=fake.date_time_this_year()
-            )
-            tenants.append(tenant)
-            db.session.add(tenant)
-        
-        db.session.commit()
-        print(f"✅ Created {len(landlords) + len(tenants) + 1} users")
-        
-        print("🏠 Creating properties...")
-        # Sample property data
-        property_data = [
-            {
-                "title": "Modern Downtown Apartment",
-                "description": "Beautiful modern apartment in the heart of downtown with great amenities and stunning city views.",
-                "rent_price": 1200.00,
-                "location": "Nairobi CBD"
-            },
-            {
-                "title": "Cozy Suburban House",
-                "description": "Spacious 3-bedroom house in a quiet suburban neighborhood. Perfect for families.",
-                "rent_price": 800.00,
-                "location": "Westlands"
-            },
-            {
-                "title": "Luxury Villa with Pool",
-                "description": "Stunning luxury villa featuring a private pool, garden, and modern furnishings.",
-                "rent_price": 2500.00,
-                "location": "Karen"
-            },
-            {
-                "title": "Studio Apartment near University",
-                "description": "Compact and affordable studio apartment, ideal for students. Close to campus and public transport.",
-                "rent_price": 450.00,
-                "location": "Kilimani"
-            },
-            {
-                "title": "Executive Penthouse",
-                "description": "Luxurious penthouse with panoramic views, high-end finishes, and premium amenities.",
-                "rent_price": 1800.00,
-                "location": "Upper Hill"
-            },
-            {
-                "title": "Garden Cottage",
-                "description": "Charming cottage with a beautiful garden, perfect for couples or small families.",
-                "rent_price": 600.00,
-                "location": "Lavington"
-            },
-            {
-                "title": "Modern Loft",
-                "description": "Industrial-style loft with high ceilings, exposed brick, and modern appliances.",
-                "rent_price": 950.00,
-                "location": "South B"
-            },
-            {
-                "title": "Beachfront Apartment",
-                "description": "Beautiful apartment with direct beach access and ocean views. Fully furnished.",
-                "rent_price": 1100.00,
-                "location": "Mombasa"
-            }
-        ]
-        
-        properties = []
-        image_urls = [
-            "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500",
-            "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500",
-            "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=500",
-            "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=500"
-        ]
-        
-        for i, prop_data in enumerate(property_data):
-            property = Property(
-                title=prop_data["title"],
-                description=prop_data["description"],
-                rent_price=prop_data["rent_price"],
-                location=prop_data["location"],
-                image_url=image_urls[i % len(image_urls)],
-                landlord_id=landlords[i % len(landlords)].id,
-                available=random.choice([True, True, True, False]),  # 75% available
-                created_at=fake.date_time_this_year()
-            )
-            properties.append(property)
-            db.session.add(property)
-        
-        db.session.commit()
-        print(f"✅ Created {len(properties)} properties")
-        
-        print("📅 Creating bookings...")
-        bookings = []
-        status_options = ["pending", "approved", "cancelled"]
-        
-        # Create bookings for various properties and tenants
-        for _ in range(15):
-            tenant = random.choice(tenants)
-            property = random.choice(properties)
-            
-            # Generate random dates
-            start_date = fake.date_between(start_date='today', end_date='+30 days')
-            end_date = start_date + timedelta(days=random.randint(3, 14))
-            
-            booking = Booking(
-                tenant_id=tenant.id,
-                property_id=property.id,
-                start_date=start_date,
-                end_date=end_date,
-                status=random.choice(status_options),
-                created_at=fake.date_time_this_year()
-            )
-            bookings.append(booking)
-            db.session.add(booking)
-        
-        db.session.commit()
-        print(f"✅ Created {len(bookings)} bookings")
-        
-        print("🎉 Database seeding completed successfully!")
-        print("\n📊 Sample Data Summary:")
-        print(f"   👥 Users: {User.query.count()} total")
-        print(f"      - Admins: {User.query.filter_by(role='admin').count()}")
-        print(f"      - Landlords: {User.query.filter_by(role='landlord').count()}")
-        print(f"      - Tenants: {User.query.filter_by(role='tenant').count()}")
-        print(f"   🏠 Properties: {Property.query.count()} total")
-        print(f"      - Available: {Property.query.filter_by(available=True).count()}")
-        print(f"      - Occupied: {Property.query.filter_by(available=False).count()}")
-        print(f"   📅 Bookings: {Booking.query.count()} total")
-        print(f"      - Pending: {Booking.query.filter_by(status='pending').count()}")
-        print(f"      - Approved: {Booking.query.filter_by(status='approved').count()}")
-        print(f"      - Cancelled: {Booking.query.filter_by(status='cancelled').count()}")
-        
-        print("\n🔑 Test Login Credentials:")
-        print("   Admin:     admin@rentease.com / password")
-        print("   Landlord1: landlord1@example.com / password")
-        print("   Tenant1:   tenant1@example.com / password")
+        # Clear existing data
+        db.session.query(Review).delete()
+        db.session.query(Payment).delete()
+        db.session.query(Booking).delete()
+        db.session.query(PropertyAmenity).delete()
+        db.session.query(PropertyImage).delete()
+        db.session.query(Property).delete()
+        db.session.query(User).delete()
 
-if __name__ == "__main__":
+        # --- Seed Users ---
+        users = [
+            User(name='Admin User', email='admin@rentease.com', role='admin'),
+            User(name='Jeremy Jomo', email='jomo.kamau@gmail.com', role='landlord'),
+            User(name='Test Tenant', email='tenant@example.com', role='tenant'),
+        ]
+
+        users[0].password = "admin123"
+        users[1].password = "landlord123"
+        users[2].password = "tenant123"
+
+        db.session.add_all(users)
+        db.session.commit()
+                # --- Seed Properties ---
+        locations = [
+            'Westlands, Nairobi', 'Kilimani, Nairobi', 'Karen, Nairobi',
+            'Lavington, Nairobi', 'Kileleshwa, Nairobi', 'Runda, Nairobi',
+            'South B, Nairobi', 'Upper Hill, Nairobi'
+        ]
+
+        properties = [
+            Property(
+                title='Modern Apartment in Westlands',
+                description='Beautiful 2-bedroom apartment with city views',
+                rent_price=45000.00,
+                location=locations[0],
+                image_url='https://example.com/images/property1.jpg',
+                landlord_id=users[1].id,
+                available=True,
+                created_at=datetime.now()
+            ),
+            Property(
+                title='Spacious Karen House',
+                description='3-bedroom family house with garden',
+                rent_price=85000.00,
+                location=locations[2],
+                image_url='https://example.com/images/property2.jpg',
+                landlord_id=users[1].id,
+                available=True,
+                created_at=datetime.now()
+            ),
+            Property(
+                title='Kilimani Studio',
+                description='Cozy studio apartment near amenities',
+                rent_price=25000.00,
+                location=locations[1],
+                image_url='https://example.com/images/property3.jpg',
+                landlord_id=users[2].id,
+                available=True,
+                created_at=datetime.now()
+            ),
+            Property(
+                title='Lavington Bungalow',
+                description='Classic 2-bedroom bungalow',
+                rent_price=65000.00,
+                location=locations[3],
+                image_url='https://example.com/images/property4.jpg',
+                landlord_id=users[2].id,
+                available=True,
+                created_at=datetime.now()
+            ),
+            Property(
+                title='Kileleshwa Apartment',
+                description='Modern 1-bedroom with balcony',
+                rent_price=35000.00,
+                location=locations[4],
+                image_url='https://example.com/images/property5.jpg',
+                landlord_id=users[1].id,
+                available=False,
+                created_at=datetime.now()
+            )
+        ]
+
+        for property in properties:
+            db.session.add(property)
+        db.session.flush()
+
+        # Seed Property Images
+        property_images = [
+            PropertyImage(
+                property_id=properties[0].id,
+                image_url='https://images.unsplash.com/photo-1564013799919-ab600027ffc6',
+                caption='Modern living room with city views',
+                is_primary=True,
+                sort_order=1,
+                created_at=datetime.now()
+            ),
+            PropertyImage(
+                property_id=properties[0].id,
+                image_url='https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
+                caption='Spacious bedroom with balcony',
+                is_primary=False,
+                sort_order=2,
+                created_at=datetime.now()
+            ),
+            PropertyImage(
+                property_id=properties[1].id,
+                image_url='https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e',
+                caption='Beautiful garden and outdoor area',
+                is_primary=True,
+                sort_order=1,
+                created_at=datetime.now()
+            ),
+            PropertyImage(
+                property_id=properties[2].id,
+                image_url='https://images.unsplash.com/photo-1554995207-c18c203602cb',
+                caption='Modern studio kitchenette',
+                is_primary=True,
+                sort_order=1,
+                created_at=datetime.now()
+            ),
+            PropertyImage(
+                property_id=properties[3].id,
+                image_url='https://images.unsplash.com/photo-1449247709967-d4461a6a6103',
+                caption='Cozy bungalow living room',
+                is_primary=True,
+                sort_order=1,
+                created_at=datetime.now()
+            ),
+            PropertyImage(
+                property_id=properties[4].id,
+                image_url='https://images.unsplash.com/photo-1598928506311-c55ded91a20c',
+                caption='Contemporary bedroom',
+                is_primary=True,
+                sort_order=1,
+                created_at=datetime.now()
+            )
+        ]
+
+        db.session.add_all(property_images)
+        db.session.flush()
+
+        # --- Seed Property Amenities ---
+        amenities = [
+            PropertyAmenity(
+                property_id=properties[0].id,
+                amenity_name='wifi',
+                description='High-speed internet included',
+                included=True
+            ),
+            PropertyAmenity(
+                property_id=properties[0].id,
+                amenity_name='parking',
+                description='1 parking slot available',
+                included=True
+            ),
+            PropertyAmenity(
+                property_id=properties[1].id,
+                amenity_name='pool',
+                description='Private swimming pool',
+                included=True
+            ),
+            PropertyAmenity(
+                property_id=properties[2].id,
+                amenity_name='gym',
+                description='Access to shared gym facility',
+                included=True
+            ),
+            PropertyAmenity(
+                property_id=properties[3].id,
+                amenity_name='garden',
+                description='Spacious outdoor garden area',
+                included=True
+            ),
+            PropertyAmenity(
+                property_id=properties[4].id,
+                amenity_name='security',
+                description='24/7 security and CCTV surveillance',
+                included=True
+            )
+        ]
+
+        db.session.add_all(amenities)
+        db.session.flush()
+
+        # --- Seed Bookings ---
+        bookings = [
+            Booking(
+                tenant_id=users[2].id,  # Test Tenant
+                property_id=properties[0].id,
+                start_date=datetime(2024, 1, 15),
+                end_date=datetime(2024, 12, 15),
+                status='approved',
+                created_at=datetime.now()
+            ),
+            Booking(
+                tenant_id=users[2].id,
+                property_id=properties[1].id,
+                start_date=datetime(2024, 3, 1),
+                end_date=datetime(2024, 9, 1),
+                status='pending',
+                created_at=datetime.now()
+            )
+        ]
+
+        db.session.add_all(bookings)
+        db.session.flush()
+
+        # --- Seed Payments ---
+        payments = [
+            Payment(
+                booking_id=bookings[0].id,
+                tenant_id=users[2].id,
+                landlord_id=users[1].id,
+                amount=45000.00,
+                payment_method='bank_transfer',
+                status='completed',
+                transaction_id='TXN00123456',
+                paid_at=datetime.now(),
+                created_at=datetime.now()
+            ),
+            Payment(
+                booking_id=bookings[1].id,
+                tenant_id=users[2].id,
+                landlord_id=users[1].id,
+                amount=85000.00,
+                payment_method='credit_card',
+                status='pending',
+                transaction_id='TXN00123457',
+                paid_at=None,
+                created_at=datetime.now()
+            )
+        ]
+
+        db.session.add_all(payments)
+        db.session.flush()
+
+        # --- Seed Reviews ---
+        reviews = [
+            Review(
+                booking_id=bookings[0].id,
+                tenant_id=users[2].id,
+                property_id=properties[0].id,
+                landlord_id=users[1].id,
+                rating=5,
+                review_text='Great apartment! Perfect location and amazing service.',
+                landlord_reply='Thank you for your kind feedback!',
+                is_approved=True,
+                created_at=datetime.now(),
+                updated_at=datetime.now()
+            )
+        ]
+
+        db.session.add_all(reviews)
+        db.session.commit()
+
+        print("✅ Database seeded successfully!")
+
+if __name__ == '__main__':
     seed_database()
