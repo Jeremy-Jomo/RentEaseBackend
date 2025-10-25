@@ -100,7 +100,7 @@ def home():
 
 
 #property routes
-@app.route('/api/properties', methods=['GET'])
+@app.route('/properties', methods=['GET'])
 def get_properties():
     propertys= Property.query.all()
     return jsonify([prop.to_dict() for prop in propertys]), 200
