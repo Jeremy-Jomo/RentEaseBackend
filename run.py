@@ -1,11 +1,6 @@
 from server import create_app, db
-<<<<<<< HEAD
 from server.app import app
-=======
 
-
->>>>>>> 156407b8ae4f22aa917600ac37f72899b00b79e4
-app = create_app()
 
 @app.shell_context_processor
 def make_shell_context():

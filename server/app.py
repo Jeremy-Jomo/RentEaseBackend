@@ -138,29 +138,55 @@ def get_property(property_id):
 @app.route('/properties', methods=['POST'])
 def create_property():
     data = request.get_json()
+
+    # Check required fields
+    required_fields = ['title', 'description', 'rent_price', 'location']
+    missing = [f for f in required_fields if f not in data]
+    if missing:
+        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
+
+    # Create the property
     new_property = Property(
         title=data['title'],
         description=data['description'],
-        rent_price=data['price'],
-        location=data['location']
+        rent_price=float(data['rent_price']),
+        location=data['location'],
+        image_url=data.get('image_url'),
+        landlord_id=data.get('landlord_id')
     )
+
     db.session.add(new_property)
     db.session.commit()
+
     return jsonify(new_property.to_dict()), 201
+
 
 @app.route('/properties/<int:property_id>', methods=['PUT'])
 def update_property(property_id):
-    prop = Property.query.get(property_id)
+    prop = db.session.get(Property, property_id)  # ✅ modern SQLAlchemy 2.0 style
     if not prop:
         return jsonify({"error": "Property not found"}), 404
 
     data = request.get_json()
+
     prop.title = data.get('title', prop.title)
     prop.description = data.get('description', prop.description)
-    prop.rent_price = data.get('price', prop.rent_price)
     prop.location = data.get('location', prop.location)
+
+    # ✅ Convert rent_price safely
+    if 'rent_price' in data:
+        try:
+            prop.rent_price = float(data['rent_price'])
+        except ValueError:
+            return jsonify({"error": "Invalid rent price format"}), 400
+
+    # ✅ Handle image update (if link provided)
+    if 'image_url' in data:
+        prop.image_url = data['image_url']
+
     db.session.commit()
     return jsonify(prop.to_dict()), 200
+
 
 @app.route('/properties/<int:property_id>', methods=['DELETE'])
 def delete_property(property_id):
