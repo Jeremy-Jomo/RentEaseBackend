@@ -1,15 +1,14 @@
-# config.py
 import os
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
 class Config:
-
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-    'DATABASE_URL',
-    'postgresql://postgres:password123@localhost:5432/rentease'
-)
+    # Use DATABASE_URL from environment
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        # Render sometimes uses old 'postgres://' format — SQLAlchemy needs 'postgresql://'
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
