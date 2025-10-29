@@ -163,6 +163,8 @@ class Payment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     booking = db.relationship('Booking', back_populates='payments')
+    tenant = db.relationship('User', foreign_keys=[tenant_id])
+    landlord = db.relationship('User', foreign_keys=[landlord_id])
 
     @validates('amount')
     def validate_amount(self, key, value):
@@ -175,7 +177,9 @@ class Payment(db.Model):
             "id": self.id,
             "booking_id": self.booking_id,
             "tenant_id": self.tenant_id,
+            "tenant_name": self.tenant.name if self.tenant else None,
             "landlord_id": self.landlord_id,
+            "landlord_name": self.landlord.name if self.landlord else None,
             "amount": str(self.amount),
             "payment_method": self.payment_method,
             "status": self.status,
@@ -183,6 +187,7 @@ class Payment(db.Model):
             "paid_at": self.paid_at.isoformat() if self.paid_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
 
 
 class PropertyAmenity(db.Model):
