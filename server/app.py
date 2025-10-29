@@ -362,6 +362,44 @@ def register_user():
     db.session.commit()
 
     return jsonify({"message": "User registered successfully"}), 201
+# ✅ Temporary route to seed Render database
+@app.route('/seed', methods=['POST'])
+def seed_data():
+    from server.models import Property
+    from server import db
+
+    with app.app_context():
+        # Prevent duplicate seeding
+        if Property.query.first():
+            return jsonify({"message": "Database already seeded!"}), 200
+
+        properties = [
+            Property(
+                title="Modern Apartment in Westlands",
+                description="Spacious 2-bedroom apartment with balcony and parking.",
+                location="Nairobi",
+                rent_price=75000,
+                image_url="https://res.cloudinary.com/demo/image/upload/sample.jpg"
+            ),
+            Property(
+                title="Beachfront Villa",
+                description="Luxury 4-bedroom villa overlooking the Indian Ocean.",
+                location="Mombasa",
+                rent_price=250000,
+                image_url="https://res.cloudinary.com/demo/image/upload/sample.jpg"
+            ),
+            Property(
+                title="Affordable Studio",
+                description="Compact studio ideal for singles near CBD.",
+                location="Kisumu",
+                rent_price=30000,
+                image_url="https://res.cloudinary.com/demo/image/upload/sample.jpg"
+            )
+        ]
+
+        db.session.add_all(properties)
+        db.session.commit()
+        return jsonify({"message": "✅ Database seeded successfully!"}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
