@@ -40,6 +40,8 @@ CORS(app,
 jwt = JWTManager()
 
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 jwt.init_app(app)
 
 from server.models import User, Property, Booking
