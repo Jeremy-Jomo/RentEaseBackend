@@ -4,10 +4,14 @@ import cloudinary.uploader
 import cloudinary.api
 
 class Config:
-    # Use DATABASE_URL from environment
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
-        # Render sometimes uses old 'postgres://' format — SQLAlchemy needs 'postgresql://'
+    # Get DATABASE_URL from environment or use local fallback
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL',
+        'postgresql://postgres:password123@localhost:5432/rentease'
+    )
+
+    # Fix Render's 'postgres://' format
+    if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
         SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -24,7 +28,8 @@ class Config:
     SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
     SENDGRID_FROM_EMAIL = os.environ.get('SENDGRID_FROM_EMAIL', 'noreply@rentease.com')
 
-# Configure Cloudinary
+
+# Configure Cloudinary globally
 cloudinary.config(
     cloud_name=Config.CLOUDINARY_CLOUD_NAME,
     api_key=Config.CLOUDINARY_API_KEY,
