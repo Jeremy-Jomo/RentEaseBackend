@@ -5,7 +5,12 @@ import cloudinary.uploader
 import cloudinary.api
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = "postgresql://rentease_user:some_password@localhost:5432/rentease_db"
+
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+    'DATABASE_URL',
+    'postgresql://postgres:password123@localhost:5432/rentease'
+)
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # JWT
