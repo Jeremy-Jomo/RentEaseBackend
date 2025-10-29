@@ -7,7 +7,7 @@ class Config:
     # Get DATABASE_URL from environment or use local fallback
     SQLALCHEMY_DATABASE_URI = os.environ.get(
     'DATABASE_URL',
-    'postgresql://rentease_user:password123@localhost:5432/rentease_db'
+    'postgresql://karia:yourpassword@localhost:5432/rentease_db'
 )
 
     # Fix Render's 'postgres://' format
