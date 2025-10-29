@@ -41,7 +41,7 @@ def seed_database():
                 description='Beautiful 2-bedroom apartment with city views',
                 rent_price=45000.00,
                 location=locations[0],
-                image_url='https://example.com/images/property1.jpg',
+                image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRD7VOFXvbxFdqzFd6fIGH5qvaO9thtnx-0sw&s',
                 landlord_id=users[1].id,
                 available=True,
                 created_at=datetime.now()
