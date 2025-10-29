@@ -127,23 +127,25 @@ def delete_property(property_id):
 @app.route('/bookings', methods=['POST'])
 def create_booking():
     data = request.get_json()
-    tenant_id = data['tenant_id']
-    property_id = data['property_id']
-    start_date = data['start_date']
-    end_date = data['end_date']
+    tenant_id = data.get('tenant_id')
+    property_id = data.get('property_id')
+    start_date = data.get('start_date', datetime.utcnow().date())
+    end_date = data.get('end_date', datetime.utcnow().date())
 
-    if not all([tenant_id, property_id, start_date, end_date]):
+    if not all([tenant_id, property_id]):
         return jsonify({"error": "Missing required fields"}), 400
 
     new_booking = Booking(
         tenant_id=tenant_id,
         property_id=property_id,
         start_date=start_date,
-        end_date=end_date
+        end_date=end_date,
+        status="pending"
     )
     db.session.add(new_booking)
     db.session.commit()
     return jsonify(new_booking.to_dict()), 201
+
 
 
 @app.route('/bookings', methods=['GET'])
