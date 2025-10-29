@@ -147,7 +147,6 @@ def create_booking():
     return jsonify(new_booking.to_dict()), 201
 
 
-
 @app.route('/bookings', methods=['GET'])
 def get_tenant_bookings():
     tenant_id = request.args.get('tenant_id')
