@@ -237,20 +237,24 @@ def get_booking(id):
         return jsonify({"error": "Booking not found"}), 404
     return jsonify(booking.to_dict()), 200
 
-@app.route('/bookings/<int:id>', methods=['PUT'])
+@app.route("/bookings/<int:id>", methods=["PUT"])
 def update_booking_status(id):
+    data = request.get_json()
+    status = data.get("status", "").lower()  # normalize to lowercase
+
     booking = Booking.query.get(id)
     if not booking:
         return jsonify({"error": "Booking not found"}), 404
 
-    data = request.get_json()
-    status = data.get('status')
-    if status not in ['Approved', 'Rejected']:
-        return jsonify({"error": "Invalid status"}), 400
+    allowed = ["pending", "approved", "cancelled"]
+    if status not in allowed:
+        return jsonify({"error": f"Invalid status. Must be one of {allowed}"}), 400
 
     booking.status = status
     db.session.commit()
-    return jsonify(booking.to_dict()), 200
+    return jsonify({"message": f"Booking status updated to {status}"}), 200
+
+
 
 @app.route('/bookings/<int:id>', methods=['DELETE'])
 def cancel_booking(id):
@@ -323,7 +327,8 @@ def login():
         return jsonify({
             "message": "Login successful",
             "token": access_token,
-            "user": user.to_dict()
+            "user": user.to_dict(),
+            "id":user.id
         }), 200
     else:
         return jsonify({"error": "Invalid email or password"}), 401
