@@ -48,6 +48,17 @@ migrate = Migrate(app, db)
 def swagger_spec():
     return jsonify(get_swagger_spec())
 
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files['file']
+    result = cloudinary.uploader.upload(file)
+    return jsonify({
+        "url": result['secure_url'],
+        "public_id": result['public_id']
+    }), 200
 
 @app.route('/')
 def home():
@@ -68,22 +79,80 @@ def get_property(property_id):
         return jsonify({"error": "Property not found"}), 404
     return jsonify(prop.to_dict()), 200
 
-
 @app.route('/properties', methods=['POST'])
 def create_property():
-    data = request.get_json()
-    required_fields = ['title', 'description', 'rent_price', 'location']
-    missing = [f for f in required_fields if f not in data]
-    if missing:
-        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
+    # Initialize defaults
+    title = description = location = rent_price = landlord_id = image_url = None
+
+    # --- Handle JSON request ---
+    if request.is_json:
+        data = request.get_json()
+        title = data.get('title')
+        description = data.get('description')
+        location = data.get('location')
+        rent_price = data.get('rent_price')
+        image_url = data.get('image_url')  # from Cloudinary upload in frontend
+        landlord_id = data.get('landlord_id')
+
+    # --- Handle multipart/form-data (file upload from frontend) ---
+    else:
+        data = request.form
+        title = data.get('title')
+        description = data.get('description')
+        location = data.get('location')
+        rent_price = data.get('rent_price')
+        landlord_id = data.get('landlord_id')
+
+        file = request.files.get('image')
+        if file:
+            upload_result = cloudinary.uploader.upload(file)
+            image_url = upload_result.get('secure_url')
+
+    # --- Validate required fields ---
+    if not all([title, description, location, rent_price, landlord_id]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # --- Save to database ---
+    property_obj = Property(
+        title=title,
+        description=description,
+        location=location,
+        rent_price=float(rent_price),
+        image_url=image_url,
+        landlord_id=int(landlord_id)
+    )
+
+    db.session.add(property_obj)
+    db.session.commit()
+
+    return jsonify(property_obj.to_dict()), 201
+
+
+    # Validate required fields
+    if not all([title, description, rent_price, location]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        rent_price_val = float(rent_price)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid rent_price"}), 400
+
+    # Cast landlord_id if present
+    if landlord_id is not None:
+        try:
+            landlord_id = int(landlord_id)
+        except (TypeError, ValueError):
+            # keep as-is (may be string id), or return error:
+            # return jsonify({"error": "Invalid landlord_id"}), 400
+            pass
 
     new_property = Property(
-        title=data['title'],
-        description=data['description'],
-        rent_price=float(data['rent_price']),
-        location=data['location'],
-        image_url=data.get('image_url'),
-        landlord_id=data.get('landlord_id')
+        title=title,
+        description=description,
+        rent_price=rent_price_val,
+        location=location,
+        image_url=image_url,
+        landlord_id=landlord_id
     )
 
     db.session.add(new_property)
