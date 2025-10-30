@@ -135,6 +135,11 @@ def create_booking():
     if not all([tenant_id, property_id]):
         return jsonify({"error": "Missing required fields"}), 400
 
+    # ✅ Check if tenant already booked this property (any status except cancelled)
+    existing = Booking.query.filter_by(tenant_id=tenant_id, property_id=property_id).filter(Booking.status != "cancelled").first()
+    if existing:
+        return jsonify({"error": "You have already booked this property."}), 400
+
     new_booking = Booking(
         tenant_id=tenant_id,
         property_id=property_id,
@@ -144,7 +149,9 @@ def create_booking():
     )
     db.session.add(new_booking)
     db.session.commit()
+
     return jsonify(new_booking.to_dict()), 201
+
 
 
 @app.route('/bookings', methods=['GET'])
@@ -152,8 +159,20 @@ def get_tenant_bookings():
     tenant_id = request.args.get('tenant_id')
     if not tenant_id:
         return jsonify({"error": "tenant_id query param required"}), 400
+
     bookings = Booking.query.filter_by(tenant_id=tenant_id).all()
-    return jsonify([b.to_dict() for b in bookings]), 200
+
+
+    result = []
+    for b in bookings:
+        b_dict = b.to_dict()
+        property_obj = Property.query.get(b.property_id)
+        if property_obj:
+            b_dict['property'] = property_obj.to_dict()
+        result.append(b_dict)
+
+    return jsonify(result), 200
+
 
 
 @app.route("/bookings/<int:id>", methods=["PUT"])
@@ -186,11 +205,15 @@ def get_landlord_bookings():
     landlord_id = request.args.get('landlord_id')
     if not landlord_id:
         return jsonify({"error": "landlord_id query param required"}), 400
+
+    landlord_id = int(landlord_id)  # direct cast
+
     bookings = (
         Booking.query.join(Property)
         .filter(Property.landlord_id == landlord_id)
         .all()
     )
+
     return jsonify([b.to_dict() for b in bookings]), 200
 
 
@@ -211,7 +234,7 @@ def create_payment():
         return jsonify({"error": "Booking must be approved before payment"}), 400
 
     tenant_id = booking.tenant_id
-    landlord_id = booking.prop.landlord_id
+    landlord_id = booking.prop.landlord_id  # make sure your Booking model has a relationship to Property
 
     transaction_id = f"TXN-{datetime.utcnow().timestamp()}"
     payment = Payment(
@@ -224,9 +247,19 @@ def create_payment():
         status="completed",
         paid_at=datetime.utcnow()
     )
+
+    # ✅ Update booking status to "active" immediately
+    booking.status = "active"
+
     db.session.add(payment)
     db.session.commit()
-    return jsonify({"message": "Payment successful", "payment": payment.to_dict()}), 201
+    return jsonify({
+        "message": "Payment successful",
+        "payment": payment.to_dict(),
+        "booking_status": booking.status
+    }), 201
+
+
 
 
 @app.route('/payments', methods=['GET'])

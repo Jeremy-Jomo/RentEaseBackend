@@ -140,7 +140,7 @@ class Booking(db.Model):
             "tenant_id": self.tenant_id,
             "tenant_name": self.tenant.name if self.tenant else None,
             "property_id": self.property_id,
-            "property_title": self.prop.title if self.prop else None,
+            "property": self.prop.to_dict() if self.prop else None,
             "status": self.status,
             "start_date": self.start_date.isoformat() if self.start_date else None,
             "end_date": self.end_date.isoformat() if self.end_date else None,
