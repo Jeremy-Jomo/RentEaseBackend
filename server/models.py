@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy.orm import validates
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -26,7 +27,9 @@ class User(db.Model):
     bookings = db.relationship('Booking', back_populates='tenant', cascade="all, delete-orphan")
     favorite_properties = db.relationship('Property', secondary=favorites, back_populates='favorited_by')
 
-
+    # relationship for landlord/tenant payments
+    tenant_payments = db.relationship('Payment', foreign_keys='Payment.tenant_id', back_populates='tenant', cascade="all, delete-orphan")
+    landlord_payments = db.relationship('Payment', foreign_keys='Payment.landlord_id', back_populates='landlord', cascade="all, delete-orphan")
 
     @property
     def password(self):
@@ -55,6 +58,13 @@ class User(db.Model):
             raise ValueError(f"Invalid role. Must be one of {allowed}.")
         return value
 
+    # total income property for landlords
+    @property
+    def total_income(self):
+        """Calculate total completed payments for this landlord."""
+        total = db.session.query(func.sum(Payment.amount)).filter_by(landlord_id=self.id, status='completed').scalar()
+        return float(total or 0.0)
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -65,6 +75,7 @@ class User(db.Model):
             "properties": [prop.id for prop in self.properties],
             "bookings": [booking.id for booking in self.bookings],
             "favorites": [p.id for p in self.favorite_properties],
+            "total_income": self.total_income if self.role == "landlord" else None
         }
 
 
@@ -119,7 +130,7 @@ class Booking(db.Model):
     property_id = db.Column(db.Integer, db.ForeignKey('properties.id'), nullable=False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default="pending", doc="pending, approved, cancelled")
+    status = db.Column(db.String(20), nullable=False, default="pending", doc="pending, approved, paid, cancelled")  # ✅ ADDED paid
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     tenant = db.relationship('User', back_populates='bookings')
@@ -129,7 +140,7 @@ class Booking(db.Model):
 
     @validates('status')
     def validate_status(self, key, value):
-        allowed = ["pending", "approved", "cancelled"]
+        allowed = ["pending", "approved", "paid", "cancelled"]  # ✅ ADDED paid
         if value not in allowed:
             raise ValueError(f"Invalid status. Must be one of {allowed}.")
         return value
@@ -163,8 +174,8 @@ class Payment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     booking = db.relationship('Booking', back_populates='payments')
-    tenant = db.relationship('User', foreign_keys=[tenant_id])
-    landlord = db.relationship('User', foreign_keys=[landlord_id])
+    tenant = db.relationship('User', foreign_keys=[tenant_id], back_populates='tenant_payments')  # ✅ ADDED back_populates
+    landlord = db.relationship('User', foreign_keys=[landlord_id], back_populates='landlord_payments')  # ✅ ADDED back_populates
 
     @validates('amount')
     def validate_amount(self, key, value):
@@ -187,7 +198,6 @@ class Payment(db.Model):
             "paid_at": self.paid_at.isoformat() if self.paid_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
-
 
 
 class PropertyAmenity(db.Model):
