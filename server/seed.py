@@ -28,7 +28,8 @@ def seed_database():
 
         db.session.add_all(users)
         db.session.commit()
-                # --- Seed Properties ---
+
+        # --- Seed Properties ---
         locations = [
             'Westlands, Nairobi', 'Kilimani, Nairobi', 'Karen, Nairobi',
             'Lavington, Nairobi', 'Kileleshwa, Nairobi', 'Runda, Nairobi',
@@ -41,7 +42,7 @@ def seed_database():
                 description='Beautiful 2-bedroom apartment with city views',
                 rent_price=45000.00,
                 location=locations[0],
-                image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRD7VOFXvbxFdqzFd6fIGH5qvaO9thtnx-0sw&s',
+                image_url='https://images.unsplash.com/photo-1564013799919-ab600027ffc6',
                 landlord_id=users[1].id,
                 available=True,
                 created_at=datetime.now()
@@ -51,7 +52,7 @@ def seed_database():
                 description='3-bedroom family house with garden',
                 rent_price=85000.00,
                 location=locations[2],
-                image_url='https://example.com/images/property2.jpg',
+                image_url='https://images.unsplash.com/photo-1507089947368-19c1da9775ae',
                 landlord_id=users[1].id,
                 available=True,
                 created_at=datetime.now()
@@ -61,27 +62,27 @@ def seed_database():
                 description='Cozy studio apartment near amenities',
                 rent_price=25000.00,
                 location=locations[1],
-                image_url='https://example.com/images/property3.jpg',
+                image_url='https://images.unsplash.com/photo-1554995207-c18c203602cb',
                 landlord_id=users[2].id,
                 available=True,
                 created_at=datetime.now()
             ),
             Property(
                 title='Lavington Bungalow',
-                description='Classic 2-bedroom bungalow',
+                description='Classic 2-bedroom bungalow with private garden',
                 rent_price=65000.00,
                 location=locations[3],
-                image_url='https://example.com/images/property4.jpg',
+                image_url='https://images.unsplash.com/photo-1449247709967-d4461a6a6103',
                 landlord_id=users[2].id,
                 available=True,
                 created_at=datetime.now()
             ),
             Property(
                 title='Kileleshwa Apartment',
-                description='Modern 1-bedroom with balcony',
+                description='Modern 1-bedroom with balcony and 24/7 security',
                 rent_price=35000.00,
                 location=locations[4],
-                image_url='https://example.com/images/property5.jpg',
+                image_url='https://images.unsplash.com/photo-1598928506311-c55ded91a20c',
                 landlord_id=users[1].id,
                 available=False,
                 created_at=datetime.now()
@@ -92,11 +93,11 @@ def seed_database():
             db.session.add(property)
         db.session.flush()
 
-        # Seed Property Images
+        # --- Seed Property Images ---
         property_images = [
             PropertyImage(
                 property_id=properties[0].id,
-                image_url='https://images.unsplash.com/photo-1568605114967-8130f3a36994',
+                image_url='https://images.unsplash.com/photo-1564013799919-ab600027ffc6',
                 caption='Modern living room with city views',
                 is_primary=True,
                 sort_order=1,
@@ -104,7 +105,7 @@ def seed_database():
             ),
             PropertyImage(
                 property_id=properties[0].id,
-                image_url='https://images.unsplash.com/photo-1598928506311-c55ded91a20c',
+                image_url='https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
                 caption='Spacious bedroom with balcony',
                 is_primary=False,
                 sort_order=2,
@@ -112,8 +113,8 @@ def seed_database():
             ),
             PropertyImage(
                 property_id=properties[1].id,
-                image_url='https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e',
-                caption='Beautiful garden and outdoor area',
+                image_url='https://images.unsplash.com/photo-1502672260266-1c1ef2d93688',
+                caption='Beautiful Karen garden and outdoor area',
                 is_primary=True,
                 sort_order=1,
                 created_at=datetime.now()
@@ -121,14 +122,14 @@ def seed_database():
             PropertyImage(
                 property_id=properties[2].id,
                 image_url='https://images.unsplash.com/photo-1554995207-c18c203602cb',
-                caption='Modern studio kitchenette',
+                caption='Modern Kilimani studio kitchenette',
                 is_primary=True,
                 sort_order=1,
                 created_at=datetime.now()
             ),
             PropertyImage(
                 property_id=properties[3].id,
-                image_url='https://images.unsplash.com/photo-1449247709967-d4461a6a6103',
+                image_url='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85',
                 caption='Cozy bungalow living room',
                 is_primary=True,
                 sort_order=1,
@@ -137,7 +138,7 @@ def seed_database():
             PropertyImage(
                 property_id=properties[4].id,
                 image_url='https://images.unsplash.com/photo-1598928506311-c55ded91a20c',
-                caption='Contemporary bedroom',
+                caption='Contemporary Kileleshwa bedroom',
                 is_primary=True,
                 sort_order=1,
                 created_at=datetime.now()
@@ -164,7 +165,7 @@ def seed_database():
             PropertyAmenity(
                 property_id=properties[1].id,
                 amenity_name='pool',
-                description='Private swimming pool',
+                description='Private swimming pool and garden',
                 included=True
             ),
             PropertyAmenity(
