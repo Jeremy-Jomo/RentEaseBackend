@@ -14,6 +14,8 @@ from server.swagger_spec import get_swagger_spec
 from server.config import Config
 from server.models import db, User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
 
+from sqlalchemy import func
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -187,7 +189,13 @@ def update_booking_status(id):
         return jsonify({"error": f"Invalid status. Must be one of {allowed}"}), 400
     booking.status = status
     db.session.commit()
-    return jsonify({"message": f"Booking status updated to {status}"}), 200
+
+    # Return updated booking object (including property)
+    b_dict = booking.to_dict()
+    prop = Property.query.get(booking.property_id)
+    if prop:
+        b_dict["property"] = prop.to_dict()
+    return jsonify(b_dict), 200
 
 
 @app.route('/bookings/<int:id>', methods=['DELETE'])
@@ -217,6 +225,29 @@ def get_landlord_bookings():
     return jsonify([b.to_dict() for b in bookings]), 200
 
 
+# landlord income summary
+@app.route('/landlord/income', methods=['GET'])
+def landlord_income():
+    landlord_id = request.args.get('landlord_id')
+    if not landlord_id:
+        return jsonify({"error": "landlord_id query param required"}), 400
+    try:
+        landlord_id_int = int(landlord_id)
+    except ValueError:
+        return jsonify({"error": "invalid landlord_id"}), 400
+
+    # Sum only completed payments for this landlord
+    total = db.session.query(func.coalesce(func.sum(Payment.amount), 0)).filter(
+        Payment.landlord_id == landlord_id_int,
+        Payment.status == "completed"
+    ).scalar()
+
+    # Ensure float serializable
+    total_float = float(total) if total is not None else 0.0
+    return jsonify({"landlord_id": landlord_id_int, "income": total_float}), 200
+
+
+
 # payment routes
 @app.route('/payments', methods=['POST'])
 @jwt_required()
@@ -230,11 +261,18 @@ def create_payment():
     if not booking:
         return jsonify({"error": "Booking not found"}), 404
 
-    if booking.status != "approved":
+    # Normalize status check (if booking.status used uppercase earlier)
+    booking_status = (booking.status or "").lower()
+    if booking_status != "approved":
         return jsonify({"error": "Booking must be approved before payment"}), 400
 
     tenant_id = booking.tenant_id
-    landlord_id = booking.prop.landlord_id  # make sure your Booking model has a relationship to Property
+
+    # Safely get landlord_id from the related property instead of assuming booking.prop
+    property_obj = Property.query.get(booking.property_id)
+    if not property_obj:
+        return jsonify({"error": "Related property not found"}), 404
+    landlord_id = property_obj.landlord_id
 
     transaction_id = f"TXN-{datetime.utcnow().timestamp()}"
     payment = Payment(
@@ -253,13 +291,18 @@ def create_payment():
 
     db.session.add(payment)
     db.session.commit()
+
+    # Return both payment and updated booking object with property included
+    payment_data = payment.to_dict()
+    booking_data = booking.to_dict()
+    prop = Property.query.get(booking.property_id)
+    if prop:
+        booking_data["property"] = prop.to_dict()
     return jsonify({
         "message": "Payment successful",
-        "payment": payment.to_dict(),
-        "booking_status": booking.status
+        "payment": payment_data,
+        "booking": booking_data
     }), 201
-
-
 
 
 @app.route('/payments', methods=['GET'])
@@ -328,19 +371,6 @@ def register_user():
     new_user.password = data['password']
     db.session.add(new_user)
     db.session.commit()
-
-    send_email(
-    to_email=data['email'],
-    subject="Welcome to RentEase 🎉",
-    html_content=f"""
-        <h2>Hello {data['name']},</h2>
-        <p>Welcome to <strong>RentEase</strong>! Your account has been successfully created.</p>
-        <p>Login anytime to explore rental properties.</p>
-        <br/>
-        <p>— The RentEase Team 🏡</p>
-    """
-)
-
     return jsonify({"message": "User registered successfully"}), 201
 
 
@@ -373,27 +403,6 @@ def get_all_bookings_admin():
     return jsonify([b.to_dict() for b in bookings]), 200
 
 
-@app.route("/send-email", methods=["POST"])
-def send_email():
-    data = request.get_json()
-    to_email = data.get("to")
-    subject = data.get("subject", "RentEase Notification")
-    content = data.get("message", "This is a test email from RentEase.")
-
-    message = Mail(
-        from_email=os.getenv("SENDGRID_FROM_EMAIL"),
-        to_emails=to_email,
-        subject=subject,
-        html_content=content
-    )
-
-    try:
-        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
-        response = sg.send(message)
-        return jsonify({"status": "success", "code": response.status_code}), 200
-    except Exception as e:
-        print(str(e))
-        return jsonify({"status": "failed", "error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

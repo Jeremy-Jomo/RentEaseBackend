@@ -13,6 +13,7 @@ cloudinary = "*"
 sendgrid = "*"
 psycopg2-binary = "*"
 flask-swagger-ui = "*"
+python-dotenv = "*"
 
 [dev-packages]
 pytest = "*"
