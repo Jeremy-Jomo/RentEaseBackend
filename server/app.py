@@ -128,37 +128,6 @@ def create_property():
     return jsonify(property_obj.to_dict()), 201
 
 
-    # Validate required fields
-    if not all([title, description, rent_price, location]):
-        return jsonify({"error": "Missing required fields"}), 400
-
-    try:
-        rent_price_val = float(rent_price)
-    except (TypeError, ValueError):
-        return jsonify({"error": "Invalid rent_price"}), 400
-
-    # Cast landlord_id if present
-    if landlord_id is not None:
-        try:
-            landlord_id = int(landlord_id)
-        except (TypeError, ValueError):
-            # keep as-is (may be string id), or return error:
-            # return jsonify({"error": "Invalid landlord_id"}), 400
-            pass
-
-    new_property = Property(
-        title=title,
-        description=description,
-        rent_price=rent_price_val,
-        location=location,
-        image_url=image_url,
-        landlord_id=landlord_id
-    )
-
-    db.session.add(new_property)
-    db.session.commit()
-    return jsonify(new_property.to_dict()), 201
-
 
 @app.route('/properties/<int:property_id>', methods=['PUT'])
 def update_property(property_id):
