@@ -140,7 +140,7 @@ class Booking(db.Model):
 
     @validates('status')
     def validate_status(self, key, value):
-        allowed = ["pending", "approved", "paid", "cancelled"]  # ✅ ADDED paid
+        allowed = ["pending", "approved", "paid", "cancelled", "active"]
         if value not in allowed:
             raise ValueError(f"Invalid status. Must be one of {allowed}.")
         return value
