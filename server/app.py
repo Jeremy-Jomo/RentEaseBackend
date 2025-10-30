@@ -257,6 +257,11 @@ def create_payment():
         booking_id = data.get('booking_id')
         payment_method = data.get('payment_method', 'digital_wallet')
         amount = data.get('amount')
+        try:
+            amount = float(amount)   # ensure it's a number
+        except (TypeError, ValueError):
+            return jsonify({"error": "Invalid amount"}), 400
+
 
         booking = Booking.query.get(booking_id)
         if not booking:
