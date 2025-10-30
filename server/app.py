@@ -252,57 +252,57 @@ def landlord_income():
 @app.route('/payments', methods=['POST'])
 @jwt_required()
 def create_payment():
-    data = request.get_json()
-    booking_id = data.get('booking_id')
-    payment_method = data.get('payment_method', 'digital_wallet')
-    amount = data.get('amount')
+    try:
+        data = request.get_json()
+        booking_id = data.get('booking_id')
+        payment_method = data.get('payment_method', 'digital_wallet')
+        amount = data.get('amount')
 
-    booking = Booking.query.get(booking_id)
-    if not booking:
-        return jsonify({"error": "Booking not found"}), 404
+        booking = Booking.query.get(booking_id)
+        if not booking:
+            return jsonify({"error": "Booking not found"}), 404
 
-    # Normalize status check (if booking.status used uppercase earlier)
-    booking_status = (booking.status or "").lower()
-    if booking_status != "approved":
-        return jsonify({"error": "Booking must be approved before payment"}), 400
+        if (booking.status or "").lower() != "approved":
+            return jsonify({"error": "Booking must be approved before payment"}), 400
 
-    tenant_id = booking.tenant_id
+        property_obj = Property.query.get(booking.property_id)
+        if not property_obj:
+            return jsonify({"error": "Related property not found"}), 404
 
-    # Safely get landlord_id from the related property instead of assuming booking.prop
-    property_obj = Property.query.get(booking.property_id)
-    if not property_obj:
-        return jsonify({"error": "Related property not found"}), 404
-    landlord_id = property_obj.landlord_id
+        tenant_id = booking.tenant_id
+        landlord_id = property_obj.landlord_id
+        transaction_id = f"TXN-{datetime.utcnow().timestamp()}"
 
-    transaction_id = f"TXN-{datetime.utcnow().timestamp()}"
-    payment = Payment(
-        booking_id=booking_id,
-        tenant_id=tenant_id,
-        landlord_id=landlord_id,
-        amount=amount,
-        payment_method=payment_method,
-        transaction_id=transaction_id,
-        status="completed",
-        paid_at=datetime.utcnow()
-    )
+        payment = Payment(
+            booking_id=booking_id,
+            tenant_id=tenant_id,
+            landlord_id=landlord_id,
+            amount=amount,
+            payment_method=payment_method,
+            transaction_id=transaction_id,
+            status="completed",
+            paid_at=datetime.utcnow()
+        )
 
-    # ✅ Update booking status to "active" immediately
-    booking.status = "active"
+        booking.status = "active"
 
-    db.session.add(payment)
-    db.session.commit()
+        db.session.add(payment)
+        db.session.commit()
 
-    # Return both payment and updated booking object with property included
-    payment_data = payment.to_dict()
-    booking_data = booking.to_dict()
-    prop = Property.query.get(booking.property_id)
-    if prop:
-        booking_data["property"] = prop.to_dict()
-    return jsonify({
-        "message": "Payment successful",
-        "payment": payment_data,
-        "booking": booking_data
-    }), 201
+        payment_data = payment.to_dict()
+        booking_data = booking.to_dict()
+        booking_data["property"] = property_obj.to_dict()
+
+        return jsonify({
+            "message": "Payment successful",
+            "payment": payment_data,
+            "booking": booking_data
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 
 
 @app.route('/payments', methods=['GET'])
