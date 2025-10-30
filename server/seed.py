@@ -96,7 +96,7 @@ def seed_database():
         property_images = [
             PropertyImage(
                 property_id=properties[0].id,
-                image_url='https://images.unsplash.com/photo-1564013799919-ab600027ffc6',
+                image_url='https://images.unsplash.com/photo-1568605114967-8130f3a36994',
                 caption='Modern living room with city views',
                 is_primary=True,
                 sort_order=1,
@@ -104,7 +104,7 @@ def seed_database():
             ),
             PropertyImage(
                 property_id=properties[0].id,
-                image_url='https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
+                image_url='https://images.unsplash.com/photo-1598928506311-c55ded91a20c',
                 caption='Spacious bedroom with balcony',
                 is_primary=False,
                 sort_order=2,

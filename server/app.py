@@ -328,6 +328,19 @@ def register_user():
     new_user.password = data['password']
     db.session.add(new_user)
     db.session.commit()
+
+    send_email(
+    to_email=data['email'],
+    subject="Welcome to RentEase 🎉",
+    html_content=f"""
+        <h2>Hello {data['name']},</h2>
+        <p>Welcome to <strong>RentEase</strong>! Your account has been successfully created.</p>
+        <p>Login anytime to explore rental properties.</p>
+        <br/>
+        <p>— The RentEase Team 🏡</p>
+    """
+)
+
     return jsonify({"message": "User registered successfully"}), 201
 
 
@@ -360,6 +373,27 @@ def get_all_bookings_admin():
     return jsonify([b.to_dict() for b in bookings]), 200
 
 
+@app.route("/send-email", methods=["POST"])
+def send_email():
+    data = request.get_json()
+    to_email = data.get("to")
+    subject = data.get("subject", "RentEase Notification")
+    content = data.get("message", "This is a test email from RentEase.")
+
+    message = Mail(
+        from_email=os.getenv("SENDGRID_FROM_EMAIL"),
+        to_emails=to_email,
+        subject=subject,
+        html_content=content
+    )
+
+    try:
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        response = sg.send(message)
+        return jsonify({"status": "success", "code": response.status_code}), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({"status": "failed", "error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

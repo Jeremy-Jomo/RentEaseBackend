@@ -30,7 +30,7 @@ class Config:
 
     # SendGrid
     SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY', '')
-    SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL', 'noreply@rentease.com')
+    SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL', 'jerr.jomo@gmail.com')
 
 
 # Configure Cloudinary globally
