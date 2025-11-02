@@ -15,6 +15,7 @@ def send_email(to_email, subject, html_content):
     )
 
     try:
+        print("DEBUG SENDGRID KEY PRESENT:", bool(Config.SENDGRID_API_KEY))
         print(f"📤 Sending email to: {to_email} ...")
         sg = SendGridAPIClient(Config.SENDGRID_API_KEY)
         response = sg.send(message)
