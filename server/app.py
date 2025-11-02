@@ -44,19 +44,6 @@ jwt.init_app(app)
 migrate = Migrate(app, db)
 
 
-@app.route('/test-email')
-def test_email():
-    result = send_email(
-        "markjeremyj@gmail.com",  # use your other Gmail or test address
-        "RentEase Test Email",
-        "<h2>Hello from RentEase!</h2><p>This is a test email via SendGrid 🎉</p>"
-    )
-
-    if result == 202:
-        return jsonify({"message": "Email sent successfully!"}), 200
-    else:
-        return jsonify({"message": "Failed to send email"}), 500
-
 @app.route('/swagger.json')
 def swagger_spec():
     return jsonify(get_swagger_spec())
