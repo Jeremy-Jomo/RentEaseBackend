@@ -15,7 +15,7 @@ def seed_database():
         db.session.query(Property).delete()
         db.session.query(User).delete()
 
-        # --- Seed Users ---
+        #Seed Users
         users = [
             User(name='Admin User', email='admin@rentease.com', role='admin'),
             User(name='Jeremy Jomo', email='jomo.kamau@gmail.com', role='landlord'),
@@ -169,7 +169,7 @@ def seed_database():
         db.session.add_all(properties)
         db.session.flush()
 
-        # --- Seed Property Images ---
+        #seed Property Images
         property_images = []
         for p in properties:
             property_images.append(PropertyImage(
@@ -192,7 +192,7 @@ def seed_database():
         db.session.add_all(property_images)
         db.session.flush()
 
-        # --- Seed Property Amenities ---
+        #Seed Property Amenities
         base_amenities = ['wifi', 'parking', 'security', 'water', 'electricity']
         extra_amenities = ['gym', 'pool', 'garden', 'balcony', 'laundry']
 
@@ -215,7 +215,7 @@ def seed_database():
         db.session.add_all(amenities)
         db.session.flush()
 
-        # --- Seed Bookings ---
+        #seed Bookings
         bookings = [
             Booking(
                 tenant_id=users[2].id,
@@ -238,7 +238,7 @@ def seed_database():
         db.session.add_all(bookings)
         db.session.flush()
 
-        # --- Seed Payments ---
+        #Seed Payments
         payments = [
             Payment(
                 booking_id=bookings[0].id,
@@ -267,7 +267,7 @@ def seed_database():
         db.session.add_all(payments)
         db.session.flush()
 
-        # --- Seed Reviews ---
+        #Seed Reviews
         reviews = [
             Review(
                 booking_id=bookings[0].id,

@@ -432,7 +432,7 @@ def register_user():
         email=data['email'],
         role=role
     )
-    new_user.password = data['password']  # Assuming this uses a setter to hash
+    new_user.password = data['password']
     db.session.add(new_user)
     db.session.commit()
 
