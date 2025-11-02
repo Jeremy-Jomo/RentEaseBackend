@@ -35,7 +35,7 @@ class Config:
     SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL', 'jerr.jomo@gmail.com')
 
 
-# ✅ Configure Cloudinary globally
+# Configure Cloudinary globally
 cloudinary.config(
     cloud_name=Config.CLOUDINARY_CLOUD_NAME,
     api_key=Config.CLOUDINARY_API_KEY,

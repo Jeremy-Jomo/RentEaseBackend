@@ -10,7 +10,7 @@ import cloudinary.uploader
 import sendgrid
 from sendgrid.helpers.mail import Mail, Email, To, Content
 from server.swagger_spec import get_swagger_spec
-
+from server.utils.email_service import send_email
 from server.config import Config
 from server.models import db, User, Property, PropertyImage, PropertyAmenity, Booking, Payment, Review
 
@@ -43,6 +43,19 @@ with app.app_context():
 jwt.init_app(app)
 migrate = Migrate(app, db)
 
+
+@app.route('/test-email')
+def test_email():
+    result = send_email(
+        "markjeremyj@gmail.com",  # use your other Gmail or test address
+        "RentEase Test Email",
+        "<h2>Hello from RentEase!</h2><p>This is a test email via SendGrid 🎉</p>"
+    )
+
+    if result == 202:
+        return jsonify({"message": "Email sent successfully!"}), 200
+    else:
+        return jsonify({"message": "Failed to send email"}), 500
 
 @app.route('/swagger.json')
 def swagger_spec():
@@ -84,7 +97,7 @@ def create_property():
     # Initialize defaults
     title = description = location = rent_price = landlord_id = image_url = None
 
-    # --- Handle JSON request ---
+    #Handle JSON request
     if request.is_json:
         data = request.get_json()
         title = data.get('title')
@@ -94,7 +107,7 @@ def create_property():
         image_url = data.get('image_url')  # from Cloudinary upload in frontend
         landlord_id = data.get('landlord_id')
 
-    # --- Handle multipart/form-data (file upload from frontend) ---
+    # Handle multipart/form-data (file upload from frontend)
     else:
         data = request.form
         title = data.get('title')
@@ -108,11 +121,11 @@ def create_property():
             upload_result = cloudinary.uploader.upload(file)
             image_url = upload_result.get('secure_url')
 
-    # --- Validate required fields ---
+    # Validate required fields
     if not all([title, description, location, rent_price, landlord_id]):
         return jsonify({"error": "Missing required fields"}), 400
 
-    # --- Save to database ---
+    # Save to database
     property_obj = Property(
         title=title,
         description=description,
@@ -396,28 +409,49 @@ def login():
         }), 200
     return jsonify({"error": "Invalid email or password"}), 401
 
-
 @app.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
+
+    #Validate input
     if not all(k in data for k in ("name", "email", "password")):
         return jsonify({"error": "Missing required fields"}), 400
 
+    #Prevent duplicate accounts
     if User.query.filter_by(email=data['email']).first():
         return jsonify({"error": "Email already registered"}), 400
 
+    #Validate role
     role = data.get('role', 'tenant')
     if role not in ['admin', 'landlord', 'tenant']:
         return jsonify({"error": "Invalid role"}), 400
 
-    new_user = User(name=data['name'], email=data['email'], role=role)
-    new_user.password = data['password']
+    #Create and save new user
+    new_user = User(
+        name=data['name'],
+        email=data['email'],
+        role=role
+    )
+    new_user.password = data['password']  # Assuming this uses a setter to hash
     db.session.add(new_user)
     db.session.commit()
+
+    #Send welcome email (SendGrid)
+    subject = f"Welcome to RentEase, {data['name']}!"
+    content = f"""
+        <h2>Welcome to RentEase, {data['name']}! 🎉</h2>
+        <p>Your account has been created successfully as a <b>{role}</b>.</p>
+        <p>You can now log in to your dashboard and get started.</p>
+        <br>
+        <p>Best regards,<br>RentEase Team</p>
+    """
+
+    send_email(data['email'], subject, content)
+
+    #success response
     return jsonify({"message": "User registered successfully"}), 201
 
-
-# admin routes
+#admin routes
 @app.route('/admin/users', methods=['GET'])
 def get_all_users():
     users = User.query.all()

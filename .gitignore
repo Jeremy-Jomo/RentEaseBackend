@@ -5,3 +5,4 @@ __pycache__/
 .envsendgrid.env
 .env
 .env
+sendgrid.env
